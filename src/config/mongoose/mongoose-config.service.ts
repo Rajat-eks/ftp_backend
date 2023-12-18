@@ -13,7 +13,7 @@ export class MongooseConfigService implements MongooseOptionsFactory {
     const password = this.config.get('DATABASE_PASSWORD');
     const name = this.config.get('DATABASE_NAME');
 
-    const uri = `mongodb+srv://satyatyagi:o3FYeO6XX9k7stYN@cluster0.789xxlv.mongodb.net/ftp_new?retryWrites=true&w=majority`;
+    const uri = `mongodb+srv://wsu-test-user:wsu-test@cluster0.7ywwtje.mongodb.net/wsu-test`;
 
     return {
       uri,
