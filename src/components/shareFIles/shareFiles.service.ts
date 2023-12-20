@@ -21,14 +21,26 @@ export class ShareFileService {
   ) {}
 
   async shareFile(shareFileDTO: ShareFileDTO): Promise<{ message: string }> {
-    const { client, email, filePATH, folderID, msg, subject, userEmail } =
-      shareFileDTO;
+    const {
+      client,
+      email,
+      file,
+      folderID,
+      msg,
+      subject,
+      userEmail,
+      isFileShare,
+      isFolderShare,
+    } = shareFileDTO;
     console.log(shareFileDTO);
+
     let { _id, ...data } = await this.shareFileModel.create({
       folderID,
-      filePATH,
+      file,
       shareBy: userEmail,
       shareTo: email,
+      isFolderShare,
+      isFileShare,
     });
 
     const id = _id.toString();
@@ -63,27 +75,30 @@ export class ShareFileService {
         };
       }
       let folder = await this.folderModel.findById(targetFolder?.folderID);
-      console.log(folder);
-      if (targetFolder?.filePATH !== '0') {
-        let files = folder?.files.filter((item) => item?.filePath == targetFolder?.filePATH);
+
+      if (targetFolder?.isFolderShare) {
         return {
-          files: files,
+          files: targetFolder?.file,
           folder: folder,
           status: true,
-          shareItem:'FILE'
+          isFolderShare: true,
+          isFileShare: false,
         };
       }
 
-      return {
-        folder: folder,
-        shareItem: 'FOLDER',
-        status: true,
-      };
+      if (targetFolder?.isFileShare) {
+        return {
+          files: targetFolder?.file,
+          folder: folder,
+          status: true,
+          isFolderShare: false,
+          isFileShare: true,
+        };
+      }
     } catch (err) {
       return {
         status: false,
       };
-      return err;
     }
   }
 }

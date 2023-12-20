@@ -2,14 +2,10 @@ import { IsEmpty, IsNotEmpty } from 'class-validator';
 import { User } from 'src/Schema/auth/auth.schema';
 
 export class CreateFileDTO {
-  @IsNotEmpty()
-  readonly fileName: string;
+  readonly dateAndTime: any;
 
   @IsNotEmpty()
-  readonly filePath: string;
-
-  @IsNotEmpty()
-  readonly fileSize: any;
+  readonly files: any[];
 
   @IsNotEmpty()
   readonly currenFolderID: string;

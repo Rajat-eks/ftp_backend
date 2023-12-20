@@ -14,11 +14,11 @@ export class FileService {
     private readonly folderModel: Model<FolderDocument>,
   ) {}
   async createFile(createFileDTO: CreateFileDTO): Promise<{ message: string }> {
-    const { currenFolderID, fileName, filePath, fileSize } = createFileDTO;
+    const { currenFolderID, files } = createFileDTO;
+
     let folder = await this.folderModel.findById(currenFolderID);
 
-    let dateAndTime = moment();
-    folder?.files?.push({ fileName, filePath, fileSize, dateAndTime });
+    folder?.files?.push(...files);
 
     let { _id, ...updatedData } = folder;
 
@@ -26,32 +26,43 @@ export class FileService {
       .findByIdAndUpdate(folder?._id, updatedData)
       .exec();
 
-    console.log(updatedFiles);
     return { message: 'Upload File Sucessfully!' };
   }
 
   async getAllFilesFromFolder(folderID: any): Promise<{ files: [any] }> {
-    try{
+    try {
       let folder = await this.folderModel.findById(folderID);
 
       return { files: folder?.files };
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
-    
   }
 
   async deleteFileFromFiles(
     queryData: any,
   ): Promise<{ message: string; files: any }> {
-    const { folderID, filePath } = queryData;
+    const { folderID, fileName, fileSize } = queryData;
+
     let folder = await this.folderModel.findById(folderID);
-    let updatedFile = folder.files?.filter(
-      (item) => item?.filePath !== filePath,
-    );
+
+    let updatedFile = folder.files?.filter((item) => {
+      return item?.fileName !== fileName && item?.fileSize !== fileSize;
+    });
+
+    let { folderName, nextFolderID, prevFolderID, createdBy } = folder;
+
     let updateResult = await this.folderModel.findOneAndUpdate(
       { _id: folderID },
-      { $set: { ...folder, files: updatedFile } },
+      {
+        $set: {
+          folderName,
+          nextFolderID,
+          prevFolderID,
+          createdBy,
+          files: updatedFile,
+        },
+      },
       { returnDocument: 'after' }, // return the updated document
     );
 

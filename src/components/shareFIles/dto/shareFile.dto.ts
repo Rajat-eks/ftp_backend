@@ -6,7 +6,6 @@ export class ShareFileDTO {
 
   readonly client: string;
 
- 
   readonly subject: string;
 
   readonly msg: string;
@@ -16,6 +15,12 @@ export class ShareFileDTO {
 
   @IsNotEmpty()
   readonly userEmail: string;
-  
-  readonly filePATH: string;
+
+  @IsNotEmpty()
+  readonly isFolderShare: boolean;
+
+  @IsNotEmpty()
+  readonly isFileShare: boolean;
+
+  readonly file: any;
 }

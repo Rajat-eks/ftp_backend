@@ -10,6 +10,7 @@ import { FolderModule } from './components/folder/folder.module';
 import { ShareFileModule } from './components/shareFIles/shareFiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminPortalModule } from './components/adminPortal/adminPortal.module';
+import { S3UploadModule } from './components/s3/s3Upload.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AdminPortalModule } from './components/adminPortal/adminPortal.module';
     FolderModule,
     ShareFileModule,
     AdminPortalModule,
+    S3UploadModule
   ],
   controllers: [AppController],
   providers: [AppService],

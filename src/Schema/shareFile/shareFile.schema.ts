@@ -9,8 +9,8 @@ export class ShareFile {
   @Prop()
   folderID: string;
 
-  @Prop()
-  filePATH: string = '0';
+  @Prop({ type: {} })
+  file: any;
 
   @Prop()
   token: string;
@@ -20,6 +20,12 @@ export class ShareFile {
 
   @Prop()
   shareTo: string[];
+
+  @Prop()
+  isFolderShare: boolean;
+
+  @Prop()
+  isFileShare: boolean;
 }
 
 export const ShareFileSchema = SchemaFactory.createForClass(ShareFile);
