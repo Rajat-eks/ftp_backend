@@ -50,7 +50,7 @@ export class ShareFileService {
 
     <p>You have received some files from ${userEmail}. To access the files, please click the link below:</p>
   
-    <p><a href=http://localhost:3000/Viewfiles?token=${encryptedText}>Get Files</a></p>
+    <p><a href=https://ftp-react.onrender.com/Viewfiles?token=${encryptedText}>Get Files</a></p>
   
     <p>Thank you!</p>`;
 
