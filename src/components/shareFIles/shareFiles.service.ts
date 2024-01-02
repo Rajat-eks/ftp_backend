@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ShareFileDTO } from './dto/shareFile.dto';
-import { sendEmail } from 'src/utils/sendMail';
+import { sendEmail, sendMultipleEmail } from 'src/utils/sendMail';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   SHAREFILE_MODEL,
@@ -9,6 +9,7 @@ import {
 import { Model } from 'mongoose';
 import { CryptoService } from './crypto.service';
 import { FOLDER_MODEL, FolderDocument } from 'src/Schema/folder/folder.schema';
+import { generateOTP } from 'src/utils/generateOTP';
 
 @Injectable()
 export class ShareFileService {
@@ -50,7 +51,7 @@ export class ShareFileService {
 
     <p>You have received some files from ${userEmail}. To access the files, please click the link below:</p>
   
-    <p><a href=https://ftp-react.onrender.com/Viewfiles?token=${encryptedText}>Get Files</a></p>
+    <p><a href=http://localhost:3000/verifyUser?token=${encryptedText}>Get Files</a></p>
   
     <p>Thank you!</p>`;
 
@@ -61,12 +62,13 @@ export class ShareFileService {
 
   async verifyFile(token: string): Promise<any> {
     try {
-      const decryptedText = await this.cryptoService.decrypt(token);
+      const decryptedText: any = await this.cryptoService.decrypt(token);
       if (!decryptedText) {
         return {
           status: false,
         };
       }
+
       let targetFolder = await this.shareFileModel.findById(decryptedText);
 
       if (!targetFolder) {
@@ -74,6 +76,7 @@ export class ShareFileService {
           status: false,
         };
       }
+
       let folder = await this.folderModel.findById(targetFolder?.folderID);
 
       if (targetFolder?.isFolderShare) {
@@ -95,6 +98,45 @@ export class ShareFileService {
           isFileShare: true,
         };
       }
+    } catch (err) {
+      return {
+        status: false,
+      };
+    }
+  }
+
+  async verifyOTP(token: string): Promise<any> {
+    try {
+      const decryptedText: any = await this.cryptoService.decrypt(token);
+      if (!decryptedText) {
+        return {
+          status: false,
+        };
+      }
+
+      let targetFolder = await this.shareFileModel.findById(decryptedText);
+
+      if (!targetFolder) {
+        return {
+          status: false,
+        };
+      }
+
+      //Email Sending Process
+      const OTP = generateOTP();
+      console.log("OTP",OTP);
+
+      const { shareTo } = targetFolder;
+      sendMultipleEmail(
+        shareTo,
+        'Verification Code',
+        `Your Verification code is ${OTP}`,
+      );
+
+      return {
+        status: true,
+        OTP: OTP,
+      };
     } catch (err) {
       return {
         status: false,

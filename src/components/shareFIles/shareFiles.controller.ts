@@ -15,4 +15,9 @@ export class ShareFileController {
   verifyFile(@Param('token') token:string ):any {
     return this.shareFileService.verifyFile(token);
   }
+
+  @Get('/verifyOTP/:token')
+  verifyOTP(@Param('token') token:string ):any {
+    return this.shareFileService.verifyOTP(token);
+  }
 }
