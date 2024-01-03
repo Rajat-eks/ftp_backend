@@ -2,6 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
@@ -30,5 +31,10 @@ export class AuthController {
   @Post('/changePassword')
   changePassword(@Body() changePasswordDTO: ChangePasswordDTO): any {
     return this.authService.changePassword(changePasswordDTO);
+  }
+
+  @Get('/findalluser')
+  findAllUser(): any {
+    return this.authService.findAllUser();
   }
 }

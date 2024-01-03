@@ -25,7 +25,7 @@ export class AuthService {
 
   async findAccount(
     signInUserDto: SignInUserDto,
-  ): Promise<{ email: string; token: string; user: string }> {
+  ): Promise<{ email: string; token: string; user: string; isAdmin: boolean }> {
     try {
       const { email, password } = signInUserDto;
 
@@ -43,7 +43,12 @@ export class AuthService {
 
       const token = this.jwtService.sign({ id: user?._id });
 
-      return { email: user?.email, token, user: user?.name };
+      return {
+        email: user?.email,
+        token,
+        user: user?.name,
+        isAdmin: user.isAdmin || false,
+      };
     } catch (error) {
       throw new UnauthorizedException('Invalid Email or Password');
     }
@@ -62,6 +67,7 @@ export class AuthService {
         name,
         email,
         password: hashedPassword,
+        isUser: true,
       });
 
       return {
@@ -93,6 +99,15 @@ export class AuthService {
         { $set: { password: hashedPassword } },
       );
       return { message: 'Password Changed Sucessfully!' };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async findAllUser(): Promise<any> {
+    try {
+      let user = await this.userModel.find({isUser:true});
+      return { status: true, user: user };
     } catch (err) {
       console.log(err);
     }

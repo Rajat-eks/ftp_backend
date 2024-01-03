@@ -13,6 +13,12 @@ export class User extends Document {
 
   @Prop()
   password: string;
+
+  @Prop()
+  isAdmin: boolean;
+
+  @Prop()
+  isUser: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
