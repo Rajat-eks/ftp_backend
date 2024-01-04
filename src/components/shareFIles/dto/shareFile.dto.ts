@@ -10,6 +10,8 @@ export class ShareFileDTO {
 
   readonly msg: string;
 
+  readonly OTPSecurity: boolean;
+
   @IsNotEmpty()
   readonly folderID: string;
 

@@ -28,18 +28,19 @@ export class ShareFileService {
       file,
       folderID,
       msg,
+      OTPSecurity,
       subject,
       userEmail,
       isFileShare,
       isFolderShare,
     } = shareFileDTO;
-    console.log(shareFileDTO);
 
     let { _id, ...data } = await this.shareFileModel.create({
       folderID,
       file,
       shareBy: userEmail,
       shareTo: email,
+      OTPSecurity: OTPSecurity,
       isFolderShare,
       isFileShare,
     });
@@ -51,7 +52,7 @@ export class ShareFileService {
 
     <p>You have received some files from ${userEmail}. To access the files, please click the link below:</p>
   
-    <p><a href=http://localhost:3000/verifyUser?token=${encryptedText}>Get Files</a></p>
+    <p><a href=http://localhost:3000/authanticate?token=${encryptedText}>Get Files</a></p>
   
     <p>Thank you!</p>`;
 
@@ -124,7 +125,6 @@ export class ShareFileService {
 
       //Email Sending Process
       const OTP = generateOTP();
-      console.log("OTP",OTP);
 
       const { shareTo } = targetFolder;
       sendMultipleEmail(
@@ -136,6 +136,34 @@ export class ShareFileService {
       return {
         status: true,
         OTP: OTP,
+        email: targetFolder?.shareTo,
+      };
+    } catch (err) {
+      return {
+        status: false,
+      };
+    }
+  }
+  async checkOTPSecurity(token: string): Promise<any> {
+    try {
+      const decryptedText: any = await this.cryptoService.decrypt(token);
+      if (!decryptedText) {
+        return {
+          status: false,
+        };
+      }
+
+      let targetFolder = await this.shareFileModel.findById(decryptedText);
+
+      if (!targetFolder) {
+        return {
+          status: false,
+        };
+      }
+
+      return {
+        status: true,
+        OTPSecurity: targetFolder?.OTPSecurity,
       };
     } catch (err) {
       return {

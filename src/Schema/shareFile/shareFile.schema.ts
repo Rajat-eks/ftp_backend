@@ -26,6 +26,9 @@ export class ShareFile {
 
   @Prop()
   isFileShare: boolean;
+
+  @Prop()
+  OTPSecurity: boolean;
 }
 
 export const ShareFileSchema = SchemaFactory.createForClass(ShareFile);

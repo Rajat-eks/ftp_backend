@@ -20,4 +20,9 @@ export class ShareFileController {
   verifyOTP(@Param('token') token:string ):any {
     return this.shareFileService.verifyOTP(token);
   }
+
+  @Get('/isOTPSecurity/:token')
+  checkOTPSecurity(@Param('token') token:string ):any {
+    return this.shareFileService.checkOTPSecurity(token);
+  }
 }
