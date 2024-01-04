@@ -52,7 +52,7 @@ export class ShareFileService {
 
     <p>You have received some files from ${userEmail}. To access the files, please click the link below:</p>
   
-    <p><a href=http://localhost:3000/authanticate?token=${encryptedText}>Get Files</a></p>
+    <p><a href=http://effectual-services.in/authanticate?token=${encryptedText}>Get Files</a></p>
   
     <p>Thank you!</p>`;
 
