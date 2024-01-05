@@ -35,6 +35,7 @@ export class ShareFileService {
       isFolderShare,
     } = shareFileDTO;
 
+    const OTP = generateOTP();
     let { _id, ...data } = await this.shareFileModel.create({
       folderID,
       file,
@@ -43,17 +44,28 @@ export class ShareFileService {
       OTPSecurity: OTPSecurity,
       isFolderShare,
       isFileShare,
+      OTP,
     });
 
     const id = _id.toString();
     const encryptedText = this.cryptoService.encrypt(id);
 
-    let htmlMessage = `<p>Hello User,</p>
+    let htmlMessage = OTPSecurity
+      ? `<p>Hi,</p>
 
-    <p>You have received some files from ${userEmail}. To access the files, please click the link below:</p>
+    <p>You have received  files from ${userEmail}. To access the files, please click the link below:</p>
   
     <p><a href=http://effectual-services.in/authanticate?token=${encryptedText}>Get Files</a></p>
+
+    <p>Your Secured OTP: ${OTP}</p>
   
+    <p>Thank you!</p>`
+      : `<p>Hi,</p>
+
+    <p>You have received  files from ${userEmail}. To access the files, please click the link below:</p>
+  
+    <p><a href=http://effectual-services.in/authanticate?token=${encryptedText}>Get Files</a></p>
+
     <p>Thank you!</p>`;
 
     let res = await sendEmail(email, subject, htmlMessage);
@@ -164,6 +176,34 @@ export class ShareFileService {
       return {
         status: true,
         OTPSecurity: targetFolder?.OTPSecurity,
+      };
+    } catch (err) {
+      return {
+        status: false,
+      };
+    }
+  }
+
+  async getOTP(token: string): Promise<any> {
+    try {
+      const decryptedText: any = await this.cryptoService.decrypt(token);
+      if (!decryptedText) {
+        return {
+          status: false,
+        };
+      }
+
+      let targetFolder = await this.shareFileModel.findById(decryptedText);
+
+      if (!targetFolder) {
+        return {
+          status: false,
+        };
+      }
+
+      return {
+        status: true,
+        OTP: targetFolder?.OTP,
       };
     } catch (err) {
       return {

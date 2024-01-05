@@ -15,6 +15,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { USER_MODEL, UserDocument } from 'src/Schema/auth/auth.schema';
 import { Model, Error } from 'mongoose';
 import { ChangePasswordDTO } from './dto/changePassword.dto';
+import { generateRandomPassword } from 'src/utils/generatePassword';
+import { sendEmail } from 'src/utils/sendMail';
 
 @Injectable()
 export class AuthService {
@@ -106,8 +108,34 @@ export class AuthService {
 
   async findAllUser(): Promise<any> {
     try {
-      let user = await this.userModel.find({isUser:true});
+      let user = await this.userModel.find({ isUser: true });
       return { status: true, user: user };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async forgotPassword(data: any): Promise<any> {
+    try {
+      const { email } = data;
+      let user = await this.userModel.findOne({ email });
+
+      if (!user) {
+        return { status: false, message: 'User Not Found!' };
+      }
+      const randomPassword = await generateRandomPassword();
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      await this.userModel.findOneAndUpdate(
+        { email: email },
+        { $set: { password: hashedPassword } },
+      );
+      await sendEmail(
+        email,
+        ' Password Forgot Sucessfully!',
+        `Your password for FTP Secure Server is: ${randomPassword}. Keep it secure!`,
+      );
+      return { status: true, message: 'Password Forgot Sucessfully' };
     } catch (err) {
       console.log(err);
     }

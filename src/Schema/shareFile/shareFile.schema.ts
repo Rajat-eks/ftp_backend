@@ -29,6 +29,9 @@ export class ShareFile {
 
   @Prop()
   OTPSecurity: boolean;
+  
+  @Prop()
+  OTP: string;
 }
 
 export const ShareFileSchema = SchemaFactory.createForClass(ShareFile);

@@ -7,22 +7,27 @@ export class ShareFileController {
   constructor(private readonly shareFileService: ShareFileService) {}
 
   @Post('/files')
-  shareFile(@Body() shareFileDTO: ShareFileDTO):any {
+  shareFile(@Body() shareFileDTO: ShareFileDTO): any {
     return this.shareFileService.shareFile(shareFileDTO);
   }
 
   @Get('/verify/:token')
-  verifyFile(@Param('token') token:string ):any {
+  verifyFile(@Param('token') token: string): any {
     return this.shareFileService.verifyFile(token);
   }
 
   @Get('/verifyOTP/:token')
-  verifyOTP(@Param('token') token:string ):any {
+  verifyOTP(@Param('token') token: string): any {
     return this.shareFileService.verifyOTP(token);
   }
 
   @Get('/isOTPSecurity/:token')
-  checkOTPSecurity(@Param('token') token:string ):any {
+  checkOTPSecurity(@Param('token') token: string): any {
     return this.shareFileService.checkOTPSecurity(token);
+  }
+
+  @Get('/getOTP/:token')
+  getOTP(@Param('token') token: string): any {
+    return this.shareFileService.getOTP(token);
   }
 }

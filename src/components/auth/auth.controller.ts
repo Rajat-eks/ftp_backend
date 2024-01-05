@@ -37,4 +37,10 @@ export class AuthController {
   findAllUser(): any {
     return this.authService.findAllUser();
   }
+
+  @Post('/forgotPassword')
+  forgotPassword(@Body() data:any): any {
+    
+    return this.authService.forgotPassword(data);
+  }
 }
