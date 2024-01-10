@@ -1,4 +1,4 @@
-import { IsEmpty, IsNotEmpty } from 'class-validator';
+import { IsEmpty, IsNotEmpty, IsOptional } from 'class-validator';
 import { User } from 'src/Schema/auth/auth.schema';
 
 export class CreateFileDTO {
@@ -13,6 +13,6 @@ export class CreateFileDTO {
   @IsEmpty({ message: 'You cannot pass user id' })
   readonly user: User;
 
-  @IsNotEmpty()
+  @IsOptional()
   readonly userEmail: string;
 }

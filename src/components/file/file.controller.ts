@@ -11,7 +11,6 @@ export class FileController {
   @Post('/uploadFile')
   createFile(
     @Body() createFileDTO: CreateFileDTO,
-    @Req() req,
   ): Promise<{ message: string }> {
     return this.fileService.createFile(createFileDTO);
   }
