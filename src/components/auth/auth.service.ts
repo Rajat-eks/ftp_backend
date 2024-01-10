@@ -17,6 +17,7 @@ import { Model, Error } from 'mongoose';
 import { ChangePasswordDTO } from './dto/changePassword.dto';
 import { generateRandomPassword } from 'src/utils/generatePassword';
 import { sendEmail } from 'src/utils/sendMail';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -27,9 +28,11 @@ export class AuthService {
 
   async findAccount(
     signInUserDto: SignInUserDto,
+    ip: Request,
   ): Promise<{ email: string; token: string; user: string; isAdmin: boolean }> {
     try {
       const { email, password } = signInUserDto;
+      console.log('Access by this IP', ip);
 
       const user = await this.userModel.findOne({ email: email });
 

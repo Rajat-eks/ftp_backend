@@ -6,6 +6,7 @@ import mongoose, { Model } from 'mongoose';
 import { User } from 'src/Schema/auth/auth.schema';
 import { FOLDER_MODEL, FolderDocument } from 'src/Schema/folder/folder.schema';
 import * as moment from 'moment';
+import { sendEmail } from 'src/utils/sendMail';
 
 @Injectable()
 export class FileService {
@@ -13,8 +14,9 @@ export class FileService {
     @InjectModel(FOLDER_MODEL)
     private readonly folderModel: Model<FolderDocument>,
   ) {}
+
   async createFile(createFileDTO: CreateFileDTO): Promise<{ message: string }> {
-    const { currenFolderID, files } = createFileDTO;
+    const { currenFolderID, files, userEmail } = createFileDTO;
 
     let folder = await this.folderModel.findById(currenFolderID);
 
@@ -26,6 +28,25 @@ export class FileService {
       .findByIdAndUpdate(folder?._id, updatedData)
       .exec();
 
+    sendEmail(
+      'satya.tyagi@effectualservices.com',
+      `File Upload`,
+      `
+    <h4>Hi,</h4>
+    <br>
+  
+    <p>
+    File uploaded by: ${userEmail}<br>
+    <br>
+     Path: ${files[0]?.filePath}<br>
+     <br>
+
+     Size: ${files[0]?.fileSize}<br>
+     <br>
+     Date & Time: ${moment(files[0]?.dateAndTime).format('YYYY-MM-DD hh:mm a')}
+    </p>
+    `,
+    );
     return { message: 'Upload File Sucessfully!' };
   }
 

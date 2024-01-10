@@ -5,12 +5,15 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Ip,
   Post,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupUserDto } from './dto/sign-up.dto';
 import { SignInUserDto } from './dto/sign-in.dto';
 import { ChangePasswordDTO } from './dto/changePassword.dto';
+import { Request } from 'express';
 
 @Controller('/v1/auth/')
 export class AuthController {
@@ -19,8 +22,9 @@ export class AuthController {
   @Post('/signIn')
   SignInAccount(
     @Body() signInUserDto: SignInUserDto,
+    @Ip() ip: Request,
   ): Promise<{ token: string }> {
-    return this.authService.findAccount(signInUserDto);
+    return this.authService.findAccount(signInUserDto,ip);
   }
 
   @Post('/signUp')
@@ -39,8 +43,7 @@ export class AuthController {
   }
 
   @Post('/forgotPassword')
-  forgotPassword(@Body() data:any): any {
-    
+  forgotPassword(@Body() data: any): any {
     return this.authService.forgotPassword(data);
   }
 }

@@ -12,4 +12,7 @@ export class CreateFileDTO {
 
   @IsEmpty({ message: 'You cannot pass user id' })
   readonly user: User;
+
+  @IsNotEmpty()
+  readonly userEmail: string;
 }
