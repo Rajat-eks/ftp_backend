@@ -31,21 +31,55 @@ export class FileService {
     sendEmail(
       'satya.tyagi@effectualservices.com',
       `File Upload`,
-      `
-    <h4>Hi,</h4>
-    <br>
-  
-    <p>
-    File uploaded by: ${userEmail}<br>
-    <br>
-     Path: ${files[0]?.filePath}<br>
-     <br>
-
-     Size: ${files[0]?.fileSize}<br>
-     <br>
-     Date & Time: ${moment(files[0]?.dateAndTime).format('YYYY-MM-DD hh:mm a')}
-    </p>
-    `,
+      `  <h3>Hi,</h3>
+ <br>
+ File uploaded by: ${userEmail}<br>
+ <div style="max-height: 350px; overflow: auto;">
+   <table style="width: 100%; border: 2px solid #000; border-radius: 5px;">
+     <thead style="border-bottom: 2px solid #000;">
+       <tr>
+         <th style="font-size: 17px; font-weight: 600; color: #000; padding: 4px; text-align: left; border-right: 2px solid #000;">
+           S.N.
+         </th>
+         <th style="font-size: 17px; font-weight: 600; color: #000; padding: 4px 20px; text-align: left; border-right: 2px solid #000;">
+           File Name
+         </th>
+         <th style="font-size: 17px; font-weight: 600; color: #000; padding: 4px; text-align: left; border-right: 2px solid #000;">
+           File Size
+         </th>
+         <th style="font-size: 17px; font-weight: 600; color: #000; padding: 4px 10px; text-align: left; border-right: 2px solid #000;">
+           Date
+         </th>
+       </tr>
+     </thead>
+     <tbody>
+       ${files
+         .map(
+           (item, id) => `
+         <tr style="background-color: #fff; border-bottom: 1px solid #000; transition: background-color 0.3s ease-in-out;">
+           <td style="padding: 6px 4px; white-space: nowrap; font-size: 14px; font-weight: medium; color: #000; border-right: 2px solid #000;">
+             ${id + 1}
+           </td>
+           <td style="font-size: 14px; color: #007bff; font-weight: 500; padding: 6px 6px; white-space: nowrap; border-right: 2px solid #000; cursor: pointer;">
+             <a href="${
+               item.filePath
+             }" style="text-decoration: none; color: #007bff;">${
+               item.fileName
+             }</a>
+           </td>
+           <td style="font-size: 14px; color: #000; font-weight: 500; padding: 6px 6px; white-space: nowrap; border-right: 2px solid #000;">
+             ${item.fileSize}
+           </td>
+           <td style="font-size: 14px; color: #000; font-weight: 500; padding: 6px 6px; white-space: nowrap; border-right: 2px solid #000;">
+             ${moment(item.dateAndTime).format('YYYY-MM-DD hh:mm a')}
+           </td>
+         </tr>
+       `,
+         )
+         .join('')}
+     </tbody>
+   </table>
+ </div>`,
     );
     return { message: 'Upload File Sucessfully!' };
   }
