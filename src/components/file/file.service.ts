@@ -102,9 +102,9 @@ export class FileService {
     let folder = await this.folderModel.findById(folderID);
 
     let updatedFile = (folder?.files || []).filter(
-      (item): any =>
+      (item:any): any =>
         !files.some(
-          (file:any):any =>
+          (file:any) =>
             file.fileName === item.fileName && file.fileSize === item.fileSize,
         ),
     );
