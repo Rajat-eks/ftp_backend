@@ -26,7 +26,8 @@ export class FolderController {
   }
 
   @Delete('/deleteFolder/:id')
-  deleteSpecificFolder(@Param('id') id: string): Promise<any> {
+  deleteSpecificFolder(@Param('id') id: any): Promise<any> {
+  
     return this.folderService.deleteSpecificFolder(id);
   }
 

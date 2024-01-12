@@ -60,9 +60,12 @@ export class FolderService {
     }
   }
 
-  async deleteSpecificFolder(id: string): Promise<any> {
+  async deleteSpecificFolder(id: any): Promise<any> {
+    
     try {
-      const results = await this.folderModel.findByIdAndDelete(id);
+      let allDeleteIDs=id?.split(',')
+      const filterCriteria = { _id: { $in: allDeleteIDs } };
+      const results = await this.folderModel.deleteMany(filterCriteria);
       console.log(results);
       return results;
     } catch (err) {

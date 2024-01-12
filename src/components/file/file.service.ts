@@ -95,19 +95,23 @@ export class FileService {
   }
 
   async deleteFileFromFiles(
-    queryData: any,
+    bodyData: any,
   ): Promise<{ message: string; files: any }> {
-    const { folderID, fileName, fileSize } = queryData;
+    const { folderID, files } = bodyData;
 
     let folder = await this.folderModel.findById(folderID);
 
-    let updatedFile = folder.files?.filter((item) => {
-      return item?.fileName !== fileName && item?.fileSize !== fileSize;
-    });
+    let updatedFile = (folder?.files || []).filter(
+      (item): any =>
+        !files.some(
+          (file:any):any =>
+            file.fileName === item.fileName && file.fileSize === item.fileSize,
+        ),
+    );
 
     let { folderName, nextFolderID, prevFolderID, createdBy } = folder;
 
-    let updateResult = await this.folderModel.findOneAndUpdate(
+    await this.folderModel.findOneAndUpdate(
       { _id: folderID },
       {
         $set: {

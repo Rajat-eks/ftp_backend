@@ -22,11 +22,11 @@ export class FileController {
     return this.fileService.getAllFilesFromFolder(folderID);
   }
 
-  @Delete('/deleteFile')
+  @Post('/deleteFile')
   deleteFileFromFiles( 
-    @Query() queryData: any,
+    @Body() bodyData: any,
   ): Promise<{ message: string }> {
-    return this.fileService.deleteFileFromFiles(queryData);
+    return this.fileService.deleteFileFromFiles(bodyData);
   }
 
  

@@ -9,7 +9,7 @@ export class ShareFile {
   @Prop()
   folderID: string;
 
-  @Prop({ type: {} })
+  @Prop({ type: [] })
   file: any;
 
   @Prop()
@@ -29,7 +29,7 @@ export class ShareFile {
 
   @Prop()
   OTPSecurity: boolean;
-  
+
   @Prop()
   OTP: string;
 }
