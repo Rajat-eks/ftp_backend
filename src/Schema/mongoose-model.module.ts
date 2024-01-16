@@ -4,6 +4,7 @@ import { Global, Module } from '@nestjs/common';
 import { FILE_MODEL, FileSchema } from './file/file.schema';
 import { FOLDER_MODEL, FolderSchema } from './folder/folder.schema';
 import { SHAREFILE_MODEL, ShareFileSchema } from './shareFile/shareFile.schema';
+import { LOGS_MODEL, LogsSchema } from './log/log.schema';
 
 const MODELS = [
   { name: USER_MODEL, schema: UserSchema },
@@ -11,6 +12,7 @@ const MODELS = [
   { name: FILE_MODEL, schema: FileSchema },
   { name: FOLDER_MODEL, schema: FolderSchema },
   { name: SHAREFILE_MODEL, schema: ShareFileSchema },
+  { name: LOGS_MODEL, schema: LogsSchema },
 ];
 
 @Global()

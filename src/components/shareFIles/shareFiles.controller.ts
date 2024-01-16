@@ -1,14 +1,18 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { ShareFileService } from './shareFiles.service';
 import { ShareFileDTO } from './dto/shareFile.dto';
+import { LogsService } from '../logs/logs.service';
+import { Request } from 'express';
+import * as requestIp from 'request-ip';
 
 @Controller('/share')
 export class ShareFileController {
   constructor(private readonly shareFileService: ShareFileService) {}
 
   @Post('/files')
-  shareFile(@Body() shareFileDTO: ShareFileDTO): any {
-    return this.shareFileService.shareFile(shareFileDTO);
+  shareFile(@Body() shareFileDTO: ShareFileDTO, @Req() request: Request): any {
+    const ipAddress = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+    return this.shareFileService.shareFile(shareFileDTO, ipAddress);
   }
 
   @Get('/verify/:token')

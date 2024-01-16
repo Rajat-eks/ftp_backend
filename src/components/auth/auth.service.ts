@@ -29,7 +29,7 @@ export class AuthService {
   async findAccount(
     signInUserDto: SignInUserDto,
     ip: Request,
-  ): Promise<{ email: string; token: string; user: string; isAdmin: boolean }> {
+  ): Promise<{ email: string; token: string; user: string; isAdmin: boolean,status:boolean }> {
     try {
       const { email, password } = signInUserDto;
       console.log('Access by this IP', ip);
@@ -53,6 +53,7 @@ export class AuthService {
         token,
         user: user?.name,
         isAdmin: user.isAdmin || false,
+        status: user?.status ,
       };
     } catch (error) {
       throw new UnauthorizedException('Invalid Email or Password');
@@ -112,6 +113,28 @@ export class AuthService {
   async findAllUser(): Promise<any> {
     try {
       let user = await this.userModel.find({ isUser: true });
+      return { status: true, user: user };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async DeleteUser(id: any): Promise<any> {
+    try {
+      let user = await this.userModel.findByIdAndDelete(id);
+      return { status: true, user: user };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async terminateAccount(id: any, bodyData: any): Promise<any> {
+    try {
+      let user = await this.userModel.findOneAndUpdate(
+        { _id: id },
+        { $set: bodyData },
+        { returnDocument: 'after' },
+      );
       return { status: true, user: user };
     } catch (err) {
       console.log(err);

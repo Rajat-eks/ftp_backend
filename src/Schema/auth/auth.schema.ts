@@ -19,6 +19,9 @@ export class User extends Document {
 
   @Prop()
   isUser: boolean;
+
+  @Prop({ default: true })
+  status: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

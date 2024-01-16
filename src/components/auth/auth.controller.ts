@@ -2,11 +2,15 @@ import {
   Body,
   ConflictException,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
   Ip,
+  Param,
+  Patch,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -24,12 +28,17 @@ export class AuthController {
     @Body() signInUserDto: SignInUserDto,
     @Ip() ip: Request,
   ): Promise<{ token: string }> {
-    return this.authService.findAccount(signInUserDto,ip);
+    return this.authService.findAccount(signInUserDto, ip);
   }
 
   @Post('/signUp')
   SignUpAccount(@Body() SignupUserDto: SignupUserDto): any {
     return this.authService.createAccount(SignupUserDto);
+  }
+
+  @Delete('/deleteUser/:id')
+  DeleteUser(@Param('id') id: string): any {
+    return this.authService.DeleteUser(id);
   }
 
   @Post('/changePassword')
@@ -45,5 +54,10 @@ export class AuthController {
   @Post('/forgotPassword')
   forgotPassword(@Body() data: any): any {
     return this.authService.forgotPassword(data);
+  }
+
+  @Patch('/terminateUser/:id')
+  terminateAccount(@Param('id') id: string ,@Body() bodyData:any): any {
+    return this.authService.terminateAccount(id,bodyData);
   }
 }

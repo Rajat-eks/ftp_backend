@@ -9,8 +9,10 @@ import { FileModule } from './components/file/file.module';
 import { FolderModule } from './components/folder/folder.module';
 import { ShareFileModule } from './components/shareFIles/shareFiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AdminPortalModule } from './components/adminPortal/adminPortal.module';
 import { S3UploadModule } from './components/s3/s3Upload.module';
+import { LogsModule } from './components/logs/logs.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggerInterceptor } from './interceptors/logger.interceptors';
 
 @Module({
   imports: [
@@ -18,19 +20,20 @@ import { S3UploadModule } from './components/s3/s3Upload.module';
       envFilePath: ['.env'],
       isGlobal: true,
     }),
-    // MongooseModule.forRoot(
-    //   `mongodb+srv://satyatyagi:o3FYeO6XX9k7stYN@cluster0.789xxlv.mongodb.net/ftp_new?retryWrites=true&w=majority`,
-    // ),
+
     DatabaseModule,
     MongooseModelsModule,
     AuthModule,
     FileModule,
     FolderModule,
     ShareFileModule,
-    AdminPortalModule,
-    S3UploadModule
+    S3UploadModule,
+    LogsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_INTERCEPTOR, useClass: LoggerInterceptor },
+  ],
 })
 export class AppModule {}
