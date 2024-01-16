@@ -1,9 +1,7 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { ShareFileService } from './shareFiles.service';
 import { ShareFileDTO } from './dto/shareFile.dto';
-import { LogsService } from '../logs/logs.service';
 import { Request } from 'express';
-import * as requestIp from 'request-ip';
 
 @Controller('/share')
 export class ShareFileController {

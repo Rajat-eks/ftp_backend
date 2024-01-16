@@ -20,7 +20,7 @@ import { LoggerInterceptor } from './interceptors/logger.interceptors';
       envFilePath: ['.env'],
       isGlobal: true,
     }),
-
+    LogsModule,
     DatabaseModule,
     MongooseModelsModule,
     AuthModule,
@@ -28,7 +28,6 @@ import { LoggerInterceptor } from './interceptors/logger.interceptors';
     FolderModule,
     ShareFileModule,
     S3UploadModule,
-    LogsModule,
   ],
   controllers: [AppController],
   providers: [
