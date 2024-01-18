@@ -10,7 +10,7 @@ import { FolderModule } from './components/folder/folder.module';
 import { ShareFileModule } from './components/shareFIles/shareFiles.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { S3UploadModule } from './components/s3/s3Upload.module';
-// import { LogsModule } from './components/logs/logs.module';
+import { LogsModule } from './components/logs/logs.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './interceptors/logger.interceptors';
 
@@ -20,7 +20,7 @@ import { LoggerInterceptor } from './interceptors/logger.interceptors';
       envFilePath: ['.env'],
       isGlobal: true,
     }),
-    // LogsModule,
+
     DatabaseModule,
     MongooseModelsModule,
     AuthModule,
@@ -28,6 +28,7 @@ import { LoggerInterceptor } from './interceptors/logger.interceptors';
     FolderModule,
     ShareFileModule,
     S3UploadModule,
+    LogsModule,
   ],
   controllers: [AppController],
   providers: [

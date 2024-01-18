@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 import { CryptoService } from './crypto.service';
 import { FOLDER_MODEL, FolderDocument } from 'src/Schema/folder/folder.schema';
 import { generateOTP } from 'src/utils/generateOTP';
-// import { LogsService } from '../logs/logs.service';
+import { LOGS_MODEL, LogsDocument } from 'src/Schema/log/log.schema';
 
 @Injectable()
 export class ShareFileService {
@@ -20,7 +20,8 @@ export class ShareFileService {
     @InjectModel(FOLDER_MODEL)
     private readonly folderModel: Model<FolderDocument>,
     private readonly cryptoService: CryptoService,
-    // private readonly logsService: LogsService,
+    @InjectModel(LOGS_MODEL)
+    private readonly logsModel: Model<LogsDocument>,
   ) {}
 
   async shareFile(
@@ -77,16 +78,16 @@ export class ShareFileService {
       _id: folderID,
     });
 
-    // this.logsService.createLog({
-    //   userEmail: userEmail,
-    //   files: isFileShare ? file : files,
-    //   folder: folderName,
-    //   senderEmail: email,
-    //   ip: ipAddress,
-    //   isFileShare,
-    //   isFolderShare,
-    // });
-
+    const logs = await this.logsModel.create({
+      userEmail: userEmail,
+      ip: ipAddress,
+      files: isFileShare ? file : files,
+      folder: folderName,
+      senderEmail: email,
+      isDomainSame: false,
+      isFolderShare,
+      isFileShare,
+    });
     return { message: 'File Share Sucessfully' };
   }
 
