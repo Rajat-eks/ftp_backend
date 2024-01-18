@@ -18,12 +18,16 @@ import { ChangePasswordDTO } from './dto/changePassword.dto';
 import { generateRandomPassword } from 'src/utils/generatePassword';
 import { sendEmail } from 'src/utils/sendMail';
 import { Request } from 'express';
+import { LOGS_MODEL, LogsDocument } from 'src/Schema/log/log.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(USER_MODEL) private readonly userModel: Model<UserDocument>,
     private jwtService: JwtService,
+    @InjectModel(LOGS_MODEL)
+    private readonly logsModel: Model<LogsDocument>,
+  
   ) {}
 
   async findAccount(
@@ -168,6 +172,23 @@ export class AuthService {
         Password: ${randomPassword}`,
       );
       return { status: true, message: 'Password Forgot Sucessfully' };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  async getAllLogs(): Promise<any[]> {
+    try {
+      const logs = await this.logsModel.find();
+      return logs;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async findLog(id: string): Promise<any> {
+    try {
+      const logs = await this.logsModel.findOne({ _id: id });
+      return logs;
     } catch (err) {
       console.log(err);
     }

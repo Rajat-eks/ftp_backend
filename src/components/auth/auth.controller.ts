@@ -57,7 +57,17 @@ export class AuthController {
   }
 
   @Patch('/terminateUser/:id')
-  terminateAccount(@Param('id') id: string ,@Body() bodyData:any): any {
-    return this.authService.terminateAccount(id,bodyData);
+  terminateAccount(@Param('id') id: string, @Body() bodyData: any): any {
+    return this.authService.terminateAccount(id, bodyData);
+  }
+
+  @Get('/log/getAll')
+  getAllLogs() {
+    return this.authService.getAllLogs();
+  }
+
+  @Get('/log/find/:id')
+  findLog(@Param('id') id: string) {
+    return this.authService.findLog(id);
   }
 }
