@@ -1,0 +1,9 @@
+export enum ACCOUNT_TYPE{
+    MANAGER="MANAGER",
+    CLIENT="CLIENT"
+}
+
+export enum ACCOUNT_STATUS{
+    ACTIVE="ACTIVE",
+    INACTIVE="INACTIVE"
+}
