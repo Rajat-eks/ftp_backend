@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  MongooseModuleOptions,
-  MongooseOptionsFactory,
-} from '@nestjs/mongoose';
+import { MongooseModuleOptions, MongooseOptionsFactory } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -16,10 +13,15 @@ export class MongooseConfigService implements MongooseOptionsFactory {
     const password = this.config.get('DATABASE_PASSWORD');
     const name = this.config.get('DATABASE_NAME');
 
-    const uri = `mongodb+srv://${username}:${password}@cluster0.tdr8p1e.mongodb.net/${name}`;
+    const uri = `mongodb+srv://wsu-test-user:wsu-test@cluster0.7ywwtje.mongodb.net/wsu-test`;
 
     return {
       uri,
+   //   useNewUrlParser: true, // Optional: Use the new URL parser
+     // useUnifiedTopology: true, // Optional: Use the new Server Discover and Monitoring engine
+    //  autoReconnect: true, // Enable automatic reconnection
+    //  reconnectTries: Number.MAX_VALUE, // Retry indefinitely (or set a specific number of retry attempts)
+    //  reconnectInterval: 1000, // Retry every 1 second
     };
   }
 }

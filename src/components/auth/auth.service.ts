@@ -1,166 +1,196 @@
 import {
   Injectable,
+  UnauthorizedException,
+  HttpException,
+  HttpStatus,
+  ConflictException,
   BadRequestException,
-  ServiceUnavailableException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
-import { USER_MODEL, UserDocument } from 'src/common/schemas/user/user.schema';
-import { SIGNINDTO } from './dto/create-user.dto';
-import { validateEmail } from 'src/utils/ValidateUser.utils';
-import { sendMultipleEmail } from 'src/utils/sendEmail';
+import { SignupUserDto } from './dto/sign-up.dto';
+import { JwtService } from '@nestjs/jwt';
+import { SignInUserDto } from './dto/sign-in.dto';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
-import * as randomString from 'randomstring';
-import {
-  TOKEN_MODEL,
-  TokenDocument,
-} from 'src/common/schemas/token/token.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { USER_MODEL, UserDocument } from 'src/Schema/auth/auth.schema';
+import { Model, Error } from 'mongoose';
+import { ChangePasswordDTO } from './dto/changePassword.dto';
+import { generateRandomPassword } from 'src/utils/generatePassword';
+import { sendEmail } from 'src/utils/sendMail';
+import { Request } from 'express';
+import { LOGS_MODEL, LogsDocument } from 'src/Schema/log/log.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(USER_MODEL) private readonly userModel: Model<UserDocument>,
-    @InjectModel(TOKEN_MODEL) private readonly tokenModel: Model<TokenDocument>,
+    private jwtService: JwtService,
+    @InjectModel(LOGS_MODEL)
+    private readonly logsModel: Model<LogsDocument>,
+  
   ) {}
 
-  async signIn(signInDto: SIGNINDTO) {
+  async findAccount(
+    signInUserDto: SignInUserDto,
+    ip: Request,
+  ): Promise<{ email: string; token: string; user: string; isAdmin: boolean,status:boolean }> {
     try {
-      const user = await this.userModel.findOne({ email: signInDto?.email });
+      const { email, password } = signInUserDto;
+      console.log('Access by this IP', ip);
 
-      if (!user) return { msg: 'Invalid user email', status: 'failed' };
+      const user = await this.userModel.findOne({ email: email });
 
-      // const comparePassword = await bcrypt.compare(
-      //   signInDto?.password,
-      //   user.password,
-      // );
+      if (!user) {
+        throw new NotFoundException('Invalid email');
+      }
 
-      const comparePassword = signInDto?.password === user.password;
+      const isPasswordMatched = await bcrypt.compare(password, user?.password);
 
-      if (!comparePassword)
-        return { error: 'Invalid Password', status: 'failed' };
+      if (!isPasswordMatched) {
+        throw new BadRequestException('Invalid password');
+      }
 
-      const token = await jwt.sign(
-        { _id: user._id.toString() }, //payload
-        process.env.SUPER_SECRET_KEY,
-      );
+      const token = this.jwtService.sign({ id: user?._id });
 
-      user.password = undefined;
       return {
-        msg: 'You have logged in successfully!',
-        user,
+        email: user?.email,
         token,
-        status: 'success',
+        user: user?.name,
+        isAdmin: user.isAdmin || false,
+        status: user?.status ,
       };
-    } catch (err) {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestException(err.errors);
-      }
-      throw new ServiceUnavailableException();
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Email or Password');
     }
   }
 
-  async forgotPassword(bodyData: any) {
+  async createAccount(
+    signupUserDto: SignupUserDto,
+  ): Promise<{ message: string }> {
     try {
-      // const error = validateEmail(bodyData);
-      // if (error)
-      //   return return({ mssg: error.msg, status: 'failed' });
+      const { email, name, password } = signupUserDto;
 
-      const user = await this.userModel.findOne({ email: bodyData?.email });
-      if (!user)
-        return {
-          mssg: "User with given email doesn't exist!",
-          status: 'failed',
-        };
-
-      //delete tokens if already existed for the requested user.
-      // let token = await tokenModel.findOne({ userId: user._id });
-      // if (token) await tokenModel.deleteMany();
-
-      //generating a token and saving hash of it in db however passing plain resettoken in email
-      let resetToken = randomString.generate({
-        length: 10,
-        charset: 'alphanumeric',
-      });
-      console.log(resetToken);
       const salt = await bcrypt.genSalt();
-      console.log(salt);
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-      const userId = await this.userModel.findOne({ email: bodyData.email });
-      console.log(userId);
-      const work = await this.userModel.findByIdAndUpdate(userId._id, {
-        $set: { password: resetToken },
+      const user = await this.userModel.create({
+        name,
+        email,
+        password: hashedPassword,
+        isUser: true,
       });
 
-      const mssg = await sendMultipleEmail(
-        userId.email,
-        'New Password',
-        `<p> Hello User </p>
-         <p>  Your new password is ${resetToken} </p>
-         <p> Thanks, </p>
-         <p> Effectual Team</p>
-         Click here to access the link :- <a href="https://effepro.com" > Click here </a>
-         `,
-      );
-
-      if (mssg === true)
-        return {
-          mssg: 'Email Successfully Sent . Kindly check your email inbox or spam folder to reset your password!',
-          status: 'success',
-        };
-      else
-        return {
-          mssg: 'Sorry, Email could not sent due to server error!',
-          status: 'failed',
-        };
+      return {
+        message: 'Account Created Sucessfully',
+      };
     } catch (error) {
-      return { mssg: 'Something went wrong.', status: 'failed' };
+      if (
+        error instanceof Error.ValidationError &&
+        error.errors.email.kind === 'unique'
+      ) {
+        // Handle the unique constraint violation
+        throw new ConflictException('Email address is already in use.');
+      }
+      // Handle other errors if needed
+      throw error;
     }
   }
 
-  async resetPassword(paramData: any, bodyData: any) {
+  async changePassword(
+    changePasswordDTO: ChangePasswordDTO,
+  ): Promise<{ message: string }> {
     try {
-      // return true if userId is valid mongoose objectId else false
-      if (mongoose.isValidObjectId(paramData.userId)) {
-        const passwordResetToken = await this.tokenModel.findOne({
-          userId: paramData.userId,
-        });
-        if (!passwordResetToken)
-          return {
-            mssg: 'Invalid or expired password reset token',
-            status: 'failed',
-          };
+      const { email, password } = changePasswordDTO;
 
-        //comparing token we got with its hash in db.
-        const isValid = await bcrypt.compare(
-          paramData.token,
-          passwordResetToken.token,
-        );
-        if (!isValid)
-          return {
-            mssg: 'Invalid or expired password reset token',
-            status: 'failed',
-          };
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(password, salt);
+      let user = await this.userModel.findOneAndUpdate(
+        { email: email },
+        { $set: { password: hashedPassword } },
+      );
+      return { message: 'Password Changed Sucessfully!' };
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
-        const salt = await bcrypt.genSalt();
-        const hashedPssword = await bcrypt.hash(bodyData.password, salt);
+  async findAllUser(): Promise<any> {
+    try {
+      let user = await this.userModel.find({ isUser: true });
+      return { status: true, user: user };
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
-        await this.userModel.findByIdAndUpdate(paramData.userId, {
-          $set: { password: hashedPssword },
-        });
-        await this.tokenModel.findOneAndDelete({ userId: paramData.userId });
+  async DeleteUser(id: any): Promise<any> {
+    try {
+      let user = await this.userModel.findByIdAndDelete(id);
+      return { status: true, user: user };
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
-        return {
-          mssg: 'Password Reset Sucessfully.',
-          status: 'success',
-        };
-      } else {
-        return { mssg: 'Bad Request', status: 'failed' };
+  async terminateAccount(id: any, bodyData: any): Promise<any> {
+    try {
+      let user = await this.userModel.findOneAndUpdate(
+        { _id: id },
+        { $set: bodyData },
+        { returnDocument: 'after' },
+      );
+      return { status: true, user: user };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async forgotPassword(data: any): Promise<any> {
+    try {
+      const { email } = data;
+      let user = await this.userModel.findOne({ email });
+
+      if (!user) {
+        return { status: false, message: 'User Not Found!' };
       }
-    } catch (error) {
-      console.log(error);
-      return { mssg: 'Something went wrong.', status: 'failed' };
+      const randomPassword = await generateRandomPassword();
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      await this.userModel.findOneAndUpdate(
+        { email: email },
+        { $set: { password: hashedPassword } },
+      );
+      await sendEmail(
+        email,
+        ' Password Forgot Sucessfully!',
+        ` Your password for Secure FTP Server is: ${randomPassword}. Keep it secure!`,
+      );
+      await sendEmail(
+        'satya.tyagi@effectualservices.com',
+        `Password Forgot by ${email}`,
+        `Email : ${email}
+        Password: ${randomPassword}`,
+      );
+      return { status: true, message: 'Password Forgot Sucessfully' };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  async getAllLogs(): Promise<any[]> {
+    try {
+      const logs = await this.logsModel.find();
+      return logs;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async findLog(id: string): Promise<any> {
+    try {
+      const logs = await this.logsModel.findOne({ _id: id });
+      return logs;
+    } catch (err) {
+      console.log(err);
     }
   }
 }
