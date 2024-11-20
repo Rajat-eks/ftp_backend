@@ -24,6 +24,7 @@ export async function sendEmail(userEmail: any, subject: any, text: any) {
     });
     return true;
   } catch (error) {
+    console.log("error when send mail",error)
     return { mssg: 'email not sent', status: 'failed', detail: error };
   }
 }
@@ -56,6 +57,7 @@ export async function sendMultipleEmail(
     });
     return true;
   } catch (error) {
+    console.log("error when send mail",error)
     return {
       msg: 'Sorry, Could not sent emails.',
       status: 'failed',
